@@ -1,0 +1,31 @@
+{
+  "name": "Bun",
+  "dockerFile": "Dockerfile",
+  "postCreateCommand": "bun install",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.foldingStrategy": "indentation",
+        "editor.formatOnSave": true,
+        "editor.rulers": [80, 100, 120],
+        "editor.tabSize": 2,
+        "editor.wordWrap": "wordWrapColumn",
+        "editor.wordWrapColumn": 120,
+        "prettier.printWidth": 120,
+        "prettier.proseWrap": "always",
+        "prettier.semi": false,
+        "prettier.singleQuote": true,
+        "prettier.tabWidth": 2,
+        "prettier.trailingComma": "all",
+        "prettier.useTabs": false
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "oven.bun-vscode",
+        "tal7aouy.indent-colorizer"
+      ]
+    }
+  }
+}
