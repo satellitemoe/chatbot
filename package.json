@@ -4,13 +4,23 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --watch index.ts",
-    "start": "bun index.ts"
+    "dev": "bun --watch chatbot.ts",
+    "start": "bun chatbot.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/node-schedule": "^2.1.8",
+    "@types/tmi.js": "^1.8.6"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "fast-querystring": "^1.1.2",
+    "node-schedule": "^2.1.1",
+    "send-discord-webhook": "^0.1.2",
+    "tmi.js": "^1.8.5",
+    "try": "^1.0.0-beta.10"
   }
 }
