@@ -3,7 +3,7 @@ import { env, serve } from 'bun'
 import { t } from 'try'
 import { default as axios } from 'axios'
 import { scheduleJob } from 'node-schedule'
-import { client, Client, type ChatUserstate } from 'tmi.js'
+import { Client, type ChatUserstate } from 'tmi.js'
 import { sendDiscordWebhook } from 'send-discord-webhook'
 
 import * as messages from './messages'
@@ -32,7 +32,7 @@ chat.on('raided', (channel: string, username: string, viewers: number) => {
 })
 
 chat.on('message', async (channel: string, tags: ChatUserstate, message: string, self: boolean): Promise<void> => {
-  if (channel === '#satellitemoe') {
+  if (channel === '#satellitemoe' && message != '') {
     let [ok, error, value] = t(
       await sendDiscordWebhook({
         url: env.DISCORD_WEBHOOK,
@@ -57,14 +57,14 @@ chat.on('message', async (channel: string, tags: ChatUserstate, message: string,
     return
   }
 
-  const channelCommands: Record<string, Record<string, () => Promise<[string]> | void>> = {
+  const channelCommands: Record<string, Record<string, () => Promise<[string]> | Promise<void>>> = {
     '#satellitemoe': {
       '!hola': () => chat.say(channel, `¡Hola ${tags['display-name']}! ¿Cómo estás?`),
       '!redes': () => chat.say(channel, messages.redes),
       '!kofi': () => chat.say(channel, messages.kofi),
       '!followage': async () => chat.say(channel, await messages.followAge(tags)),
 
-      '!!!shoutout': async () => await twitch.shoutout(TWITCH_ID[await messages.shoutout()]?.toString() as string),
+      '!!!shoutout': async () => chat.say(channel, await messages.shoutout(tags)),
     },
   }
 
@@ -94,5 +94,6 @@ chat.on('pong', async (latency: number): Promise<void> => {
 chat.connect()
 
 scheduleJob('35 */3 * * *', async () => {
+  console.log('Shoutout automático cada 3 horas?')
   chat.emit('chat', '#satellitemoe', { mod: true } as ChatUserstate, '!!!shoutout', false)
 })

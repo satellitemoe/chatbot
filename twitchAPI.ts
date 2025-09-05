@@ -50,11 +50,11 @@ export class Twitch {
     return avatarUrl
   }
 
-  public async shoutout(to: string, from: string = '1198464206'): Promise<[string]> {
+  public async shoutout(to: string, from: string = '1198464206'): Promise<void> {
     console.log(`Shoutout from ${from} to ${to}`)
 
-    try {
-      await axios.post(
+    let [ok, err, res] = await t(
+      axios.post(
         'https://api.twitch.tv/helix/chat/shoutouts',
         qs.stringify({
           from_broadcaster_id: from,
@@ -67,12 +67,16 @@ export class Twitch {
             Authorization: `Bearer ${this.accessToken}`,
           },
         },
-      )
-    } catch (error) {
-      //console.error('Error sending shoutout:', error)
-      //throw error
+      ),
+    )
+
+    if (err) {
+      console.error('Error sending shoutout:', err)
     }
 
-    return ['']
+    if (ok) {
+      console.log('Shoutout sent successfully')
+      console.log(res?.data)
+    }
   }
 }

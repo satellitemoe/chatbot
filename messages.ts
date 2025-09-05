@@ -3,6 +3,9 @@ import { env } from 'bun'
 import { t } from 'try'
 import { default as axios } from 'axios'
 import { type ChatUserstate } from 'tmi.js'
+import { Twitch } from './twitchAPI'
+
+const twitch = new Twitch(env.TWITCH_CLIENT_ID, env.TWITCH_OAUTH)
 
 export const redes: string =
   '📡 Síguenos en nuestras redes sociales ➡️ https://www.youtube.com/@satellitemoe ➡️ https://x.com/satellitemoe'
@@ -34,49 +37,52 @@ export function raidFrom(username: string): string {
   estadia. Por favor recuerden que aquí solo pasamos repeticiones, y todo su apoyo sirve a todo el grupo Satellite.`
 }
 
-export async function followAge(tags: ChatUserstate) {
-  let [ok, error, value] = await t(
+export async function followAge(tags: ChatUserstate): Promise<string> {
+  let [ok, err, res] = await t(
     axios.get(`https://decapi.me/twitch/followage/satellitemoe/${tags.username}?token=${env.DECAPI_TOKEN}`),
   )
 
-  if (ok) {
-    let followage = value?.data
-      .replace(/\byears?\b/g, (m: string) => (m === 'year' ? 'año' : 'años'))
-      .replace(/\bmonths?\b/g, (m: string) => (m === 'month' ? 'mes' : 'meses'))
-      .replace(/\bweeks?\b/g, (m: string) => (m === 'week' ? 'semana' : 'semanas'))
-      .replace(/\bdays?\b/g, (m: string) => (m === 'day' ? 'día' : 'días'))
-      .replace(/\bhours?\b/g, (m: string) => (m === 'hour' ? 'hora' : 'horas'))
-      .replace(/\bminutes?\b/g, (m: string) => (m === 'minute' ? 'minuto' : 'minutos'))
-      .replace(/\bseconds?\b/g, (m: string) => (m === 'second' ? 'segundo' : 'segundos'))
-
-    return `Increible, ${tags['display-name']} nos lleva siguiendo ${followage}`
+  if (err) {
+    console.error('Error fetching followage:', err)
+    return `En este momento no podemos obtener el followage de ${tags['display-name']}, lo siento :(`
   }
 
-  return `No he podido comprobar el followage de ${tags['display-name']}, lo siento :(`
+  let followAge = res?.data
+    .replace(/\byears?\b/g, (m: string) => (m === 'year' ? 'año' : 'años'))
+    .replace(/\bmonths?\b/g, (m: string) => (m === 'month' ? 'mes' : 'meses'))
+    .replace(/\bweeks?\b/g, (m: string) => (m === 'week' ? 'semana' : 'semanas'))
+    .replace(/\bdays?\b/g, (m: string) => (m === 'day' ? 'día' : 'días'))
+    .replace(/\bhours?\b/g, (m: string) => (m === 'hour' ? 'hora' : 'horas'))
+    .replace(/\bminutes?\b/g, (m: string) => (m === 'minute' ? 'minuto' : 'minutos'))
+    .replace(/\bseconds?\b/g, (m: string) => (m === 'second' ? 'segundo' : 'segundos'))
+
+  return `Increible, ${tags['display-name']} nos lleva siguiendo ${followAge}`
 }
 
-export async function shoutout(): Promise<string> {
+export async function shoutout(tags: ChatUserstate): Promise<string> {
+  if (!tags.mod) return 'Solo los moderadores pueden usar este comando'
+
+  const SHORTNAMES: Record<string, string> = {
+    CHROME: '155702183',
+    ECLIPSE: '916473359',
+    MAGIC: '131183360',
+    SEBA: '36026178',
+    YAMI: '641499175',
+  }
+
   let [ok, error, value] = await t(
     axios.get(`https://runnel.live/api/streams/${env.RUNNEL_STREAM}`, {
       headers: { Cookie: `API_KEY=${env.RUNNEL_COOKIE}` },
     }),
   )
 
-  const SHORTNAMES: Record<string, string> = {
-    MAGIC: 'magicgladius',
-    CHROME: 'chromevt',
-    ECLIPSE: 'eclipsenoctis',
-    YAMI: 'itsyamivt',
-    SEBA: 'sebascontre',
-  }
-
   if (ok && value?.data[0]?.status == 'RUNNING') {
     let queuePosition = value?.data[0]?.queuePosition
     let activeVideo = value?.data[0]?.queue[queuePosition]?.title
 
     let streamer = activeVideo.split(/\s+/)[0]
-    if (SHORTNAMES[streamer]) return SHORTNAMES[streamer]
+    if (SHORTNAMES[streamer]) await twitch.shoutout(SHORTNAMES[streamer])
   }
 
-  return 'satellitemoe'
+  return ''
 }
