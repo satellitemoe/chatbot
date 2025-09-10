@@ -32,17 +32,6 @@ chat.on('raided', (channel: string, username: string, viewers: number) => {
 })
 
 chat.on('message', async (channel: string, tags: ChatUserstate, message: string, self: boolean): Promise<void> => {
-  if (channel === '#satellitemoe' && message != '') {
-    let [ok, error, value] = t(
-      await sendDiscordWebhook({
-        url: env.DISCORD_WEBHOOK,
-        username: tags['display-name'],
-        avatar_url: await twitch.getUserAvatar(tags.username as string),
-        content: message,
-      }),
-    )
-  }
-
   if (self) return
   let msg: string[] = message.toLowerCase().split(/\s+/)
   const command = msg.find((word) => word.startsWith('!'))
